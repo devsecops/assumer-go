@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/aws/aws-sdk-go/service/sts"
@@ -59,8 +60,8 @@ func main() {
 	color.Yellow("%s", *tgtPlane)
 
 	if debug {
-		fmt.Println("Control Plane:", *ctrlPlane)
-		fmt.Println("Target Plane:", *tgtPlane)
+		log.Println("Control Plane:", *ctrlPlane)
+		log.Println("Target Plane:", *tgtPlane)
 	}
 
 	ctrlCreds, err := assumer.AssumeControlPlane(ctrlPlane, &token) // assume into control plane
@@ -81,8 +82,8 @@ func main() {
 	}
 
 	if debug {
-		fmt.Println("Control Creds:", ctrlCreds)
-		fmt.Println("Target Creds:", tgtCreds)
+		log.Println("Control Creds:", ctrlCreds)
+		log.Println("Target Creds:", tgtCreds)
 	}
 
 	if env {
