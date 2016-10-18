@@ -19,7 +19,6 @@ assumer -a <target-account-number> -r <target-account-role> -A <control-account-
 ```
 #### Optional Flags
 ```
-  -e, --env             Export Credentials as Environment Variables
   -g, --gui             AWS Console GUI
   --profile             AWS Profile
   --region              AWS Region
@@ -31,21 +30,26 @@ package main
 import "github.com/pmbenjamin/assumer"
 
 func main() {
-  controlPlane := assumer.Plane{AccountNumber: "123456789012", RoleArn: "arn:aws:iam::123456789012:role/control-role", Region: "us-west-2"}
+
+  // construct the control plane object
+  controlPlane := assumer.Plane{AccountNumber: "123456789012", RoleArn: "arn:aws:iam::123456789012:role/control-role", Region: "us-west-2"} 
+
+  // construct the target plane object
   targetPlane := assumer.Plane{AccountNumber: "123123123123", RoleArn: "arn:aws:iam::123123123123:role/target-plane"}
-  
+
   // ... get MFA Token
-  
+
   controlCreds, err := assumer.AssumeControlPlane(controlPlane, mfaToken)
   if err != nil {
-    panic(err)
+    fmt.Println(err)
   }
 
   targetCreds, err := assumer.AssumeTargetPlane(targetPlane, controlCreds)
   if err != nil {
-    panic(err)
+    fmt.Println(err)
   }
 
+  // Now you have Target Plane Credentials...
   targetCreds.Credentials.AccessKey
   targetCreds.Credentials.SecretKey
   targetCreds.Credentials.Region
@@ -53,7 +57,9 @@ func main() {
 ```
 
 ## Configuration
-Assumer currently supports [`TOML`](https://github.com/toml-lang/toml) configuration format.
+Assumer expects the config file to be called `config` and supports multiple configuration formats (e.g. [`TOML`](https://github.com/toml-lang/toml), `YAML`, & `JSON`).  
+Assumer expects the configuration file to be located in `$HOME/.assumer/config.xyz` or in the current working directory.  
+The config file is only used if the user assumes role via `assumer [target-account-name]`, rather than `assumer -a <target-account-number> -r <target-account-role> -A <control-account-number> -R <control-account-role>`
 
 ### Example
 ```
@@ -75,7 +81,7 @@ region = "us-west-2"
 ```
 
 ## Upcoming Features
-- Open AWS Console in browser with `-g` or `--gui` flag
-- Assume into target accounts with a simple command: `assumer <target-account-name>`
-- Support different configuration formats (e.g. `JSON`, `YAML`)
-- Distribute binary via Homebrew, so users can `brew install assumer`
+- [ ] Open AWS Console in browser with `-g` or `--gui` flag
+- [ ] Assume into target accounts with a simple command: `assumer <target-account-name>`
+- [x] Support different configuration formats (e.g. `JSON`, `YAML`)
+- [ ] Distribute binary via Homebrew, so users can `brew install assumer`
