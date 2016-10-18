@@ -7,7 +7,7 @@ import (
 	"regexp"
 
 	"github.com/fatih/color"
-	"github.com/pmbenjamin/assumer"
+	"github.com/pmbenjamin/assumer-go"
 	"github.com/spf13/viper"
 )
 
@@ -58,4 +58,15 @@ func getTargetPlane(p *assumer.Plane) *assumer.Plane {
 		p.Region = viper.GetString("default.region")
 	}
 	return p
+}
+
+func checkErr(err error) {
+	if err != nil {
+		color.Red("ERROR: %s", err.Error())
+		os.Exit(1)
+	}
+}
+
+func printVersion(version string) {
+	fmt.Printf("VERSION: %s\n\n", semver)
 }
