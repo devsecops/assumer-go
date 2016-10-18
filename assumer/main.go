@@ -54,10 +54,10 @@ func main() {
 	tgtPlane := &assumer.Plane{AccountNumber: tgtAcctNum, RoleArn: tgtAcctRole, Region: region} // construct the target plane object
 	tgtPlane = getTargetPlane(tgtPlane)                                                         // get defaults if some args are skipped. This requires a config file.
 
-	// fmt.Println(os.Getenv("USER"), "is assuming into:")
-	// color.Yellow("Target Plane: %s", *tgtPlane)
-	// fmt.Println("via")
-	// color.Yellow("Control Plane: %s", *ctrlPlane)
+	fmt.Println(os.Getenv("USER"), "is assuming into:")
+	color.Yellow("Target Plane: %s", *tgtPlane)
+	fmt.Println("via")
+	color.Yellow("Control Plane: %s", *ctrlPlane)
 
 	if debug {
 		log.Println("Control Plane:", *ctrlPlane)
