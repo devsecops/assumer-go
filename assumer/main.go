@@ -39,7 +39,7 @@ func main() {
 
 	flag.Parse()
 
-	if help {
+	if help || flag.NFlag() == 0 {
 		printHelp()
 	}
 
