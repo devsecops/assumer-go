@@ -13,7 +13,7 @@ import (
 
 // mfa prompts user for MFA token
 func mfa(token *string) string {
-	fmt.Println("Enter MFA: ")
+	fmt.Printf("\nEnter MFA: ")
 	reader := bufio.NewReader(os.Stdin)
 	*token, _ = reader.ReadString('\n')
 
