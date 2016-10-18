@@ -48,20 +48,25 @@ func main() {
 		os.Exit(0)
 	}
 
-	// get token interactively, or can be passed via "-t" or "--token" flag
-	if token == "" {
-		token = mfa(&token)
-	}
-
 	ctrlPlane := &assumer.Plane{AccountNumber: ctrlAcctNum, RoleArn: ctrlAcctRole, Region: region} // construct the control plane object
 	ctrlPlane = getControlPlane(ctrlPlane)                                                         // get defaults if some args are skipped. This requires a config file.
 
 	tgtPlane := &assumer.Plane{AccountNumber: tgtAcctNum, RoleArn: tgtAcctRole, Region: region} // construct the target plane object
 	tgtPlane = getTargetPlane(tgtPlane)                                                         // get defaults if some args are skipped. This requires a config file.
 
+	// fmt.Println(os.Getenv("USER"), "is assuming into:")
+	// color.Yellow("Target Plane: %s", *tgtPlane)
+	// fmt.Println("via")
+	// color.Yellow("Control Plane: %s", *ctrlPlane)
+
 	if debug {
 		log.Println("Control Plane:", *ctrlPlane)
 		log.Println("Target Plane:", *tgtPlane)
+	}
+
+	// get token interactively, or can be passed via "-t" or "--token" flag
+	if token == "" {
+		token = mfa(&token)
 	}
 
 	ctrlCreds, err := assumer.AssumeControlPlane(ctrlPlane, &token) // assume into control plane
@@ -75,7 +80,7 @@ func main() {
 		log.Println("Target Creds:", tgtCreds)
 	}
 
-	color.Green("SUCCESS!")
+	color.Green("\nSUCCESS!")
 	if gui {
 		openGui(tgtCreds)
 	} else {
