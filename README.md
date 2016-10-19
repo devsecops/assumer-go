@@ -3,7 +3,7 @@ Assume roles between AWS Control Plane accounts and Target accounts safely and s
 
 ## Installation
 ### CLI
-`go get -u github.com/pmbenjamin/assumer-go/assumer`
+`go get -u github.com/pmbenjamin/assumer-go/cmd/assumer`
 ### Library
 `go get -u github.com/pmbenjamin/assumer-go`
 
