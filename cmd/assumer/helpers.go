@@ -28,7 +28,7 @@ func mfa(token *string) string {
 
 func checkErr(err error) {
 	if err != nil {
-		color.Red("Error: %s", err)
+		color.Red("ERROR: %s", err.Error())
 		os.Exit(1)
 	}
 }
