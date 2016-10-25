@@ -29,11 +29,9 @@ var (
 
 // Vars
 var (
-	ctrlPlane *assumer.Plane
-	tgtPlane  *assumer.Plane
+	ctrlPlane *assumer.ControlPlane
+	tgtPlane  *assumer.TargetPlane
 )
-
-const semver string = "0.0.5"
 
 func main() {
 
@@ -44,40 +42,47 @@ func main() {
 	}
 
 	if version {
-		printVersion(semver)
+		printVersion()
 		os.Exit(0)
 	}
 
-	ctrlPlane := &assumer.Plane{AccountNumber: ctrlAcctNum, RoleArn: ctrlAcctRole, Region: region} // construct the control plane object
-	ctrlPlane = getControlPlane(ctrlPlane)                                                         // get defaults if some args are skipped. This requires a config file.
-
-	tgtPlane := &assumer.Plane{AccountNumber: tgtAcctNum, RoleArn: tgtAcctRole, Region: region} // construct the target plane object
-	tgtPlane = getTargetPlane(tgtPlane)                                                         // get defaults if some args are skipped. This requires a config file.
+	requestedControlPlane := &assumer.Plane{AccountNumber: ctrlAcctNum, RoleArn: ctrlAcctRole, Region: region}
+	requestedTargetPlane := &assumer.Plane{AccountNumber: tgtAcctNum, RoleArn: tgtAcctRole, Region: region}
 
 	fmt.Println(os.Getenv("USER"), "is assuming into:")
-	color.Yellow("Target Plane: %s", *tgtPlane)
+	color.Yellow("Target Plane: %+v\n", *requestedTargetPlane)
 	fmt.Println("via")
-	color.Yellow("Control Plane: %s", *ctrlPlane)
+	color.Yellow("Control Plane: %+v\n", *requestedControlPlane)
 
-	if debug {
-		log.Println("Control Plane:", *ctrlPlane)
-		log.Println("Target Plane:", *tgtPlane)
+	// get mfa token from user
+	if err := assumer.CheckMfa(token); err != nil {
+		mfa(&token)
 	}
 
-	// get token interactively, or can be passed via "-t" or "--token" flag
-	if token == "" {
-		token = mfa(&token)
+	ctrlPlane = &assumer.ControlPlane{Plane: *requestedControlPlane, MfaToken: token} // construct the control plane object
+
+	if debug {
+		log.Printf("Control Plane Values: %+v\n", *ctrlPlane)
 	}
 
-	ctrlCreds, err := assumer.AssumeControlPlane(ctrlPlane, &token) // assume into control plane
-	checkErr(err)
+	tgtPlane = &assumer.TargetPlane{Plane: *requestedTargetPlane} // construct the target plane object
 
-	tgtCreds, err := assumer.AssumeTargetAccount(tgtPlane, ctrlCreds) // assume into target plane
+	if debug {
+		log.Printf("Target Plane Values: %+v\n", *tgtPlane)
+	}
+
+	ctrlCreds, err := ctrlPlane.Assume()
 	checkErr(err)
 
 	if debug {
-		log.Println("Control Creds:", ctrlCreds)
-		log.Println("Target Creds:", tgtCreds)
+		log.Printf("Control Role Assumed Successfully: %+v\n", ctrlCreds)
+	}
+
+	tgtCreds, err := tgtPlane.Assume(ctrlCreds)
+	checkErr(err)
+
+	if debug {
+		log.Printf("Target Role Assumed Successfully: %+v\n", tgtCreds)
 	}
 
 	color.Green("\nSUCCESS!")
@@ -103,16 +108,13 @@ func init() {
 	flag.BoolVarP(&version, "version", "v", false, "Print Version")
 	flag.BoolVarP(&gui, "gui", "g", false, "AWS Console GUI")
 
-	viper.SetConfigName("config")
-	viper.AddConfigPath("$HOME/.assumer")
-	viper.AddConfigPath(".")
-	if err := viper.ReadInConfig(); err != nil {
-		color.Yellow("Warning! Config file not found: %s \n", viper.ConfigFileUsed())
+	if err := assumer.Config(); err != nil {
+		checkErr(err)
 	}
 }
 
 func printHelp() {
-	printVersion(semver)
+	printVersion()
 	fmt.Printf("CONFIG: %s\n\n", viper.ConfigFileUsed())
 	fmt.Printf("USAGE: %s\n\n", "assumer [options]")
 	fmt.Println("OPTIONS:")

@@ -6,3 +6,8 @@ type Plane struct {
 	RoleArn       string `min:"20" type:"string" required:"true"`
 	Region        string
 }
+
+// Assumer interface
+type Assumer interface {
+	Assume()
+}

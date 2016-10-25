@@ -1,28 +1,43 @@
 package assumer
 
 import (
+	"errors"
+	"log"
 	"os"
+	"regexp"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
+	"github.com/spf13/viper"
 )
 
-// AssumeControlPlane assumes a Control Plane Role and returns the assumed role credentials
-func AssumeControlPlane(c *Plane, mfaToken *string) (*sts.AssumeRoleOutput, error) {
-	// username := viper.GetString("default.username")
-	username := os.Getenv("USER")
-	serialNumber := "arn:aws:iam::" + c.AccountNumber + ":mfa/" + username
+// ControlPlane represents the AWS Control Plane Account
+type ControlPlane struct {
+	Plane
+	SerialNumber string
+	MfaToken     string
+}
 
-	// Get sts
+// Assume assumes a Control Plane Role and returns the assumed role credentials
+func (c *ControlPlane) Assume() (*sts.AssumeRoleOutput, error) {
+
+	if err := CheckMfa(c.MfaToken); err != nil {
+		return nil, err
+	}
+
+	c.GetDefaults()
+
 	svc := sts.New(session.New(), aws.NewConfig().WithRegion(c.Region))
 
 	controlParams := &sts.AssumeRoleInput{
-		RoleArn:         aws.String(c.RoleArn),     // Required
-		RoleSessionName: aws.String("AssumedRole"), // Required
-		SerialNumber:    aws.String(serialNumber),
-		TokenCode:       aws.String(*mfaToken),
+		RoleArn:         aws.String(c.RoleArn),
+		RoleSessionName: aws.String("AssumedRole"),
+		SerialNumber:    aws.String(c.SerialNumber),
+		TokenCode:       aws.String(c.MfaToken),
 	}
+
+	log.Printf("Control Params: %+v\n", controlParams)
 
 	resp, err := svc.AssumeRole(controlParams)
 	if err != nil {
@@ -30,4 +45,41 @@ func AssumeControlPlane(c *Plane, mfaToken *string) (*sts.AssumeRoleOutput, erro
 	}
 
 	return resp, nil
+}
+
+// GetDefaults will get ControlPlane default values from assumer config file
+func (c *ControlPlane) GetDefaults() error {
+	if c.AccountNumber == "" {
+		c.AccountNumber = viper.GetString("control.account")
+	}
+
+	if c.RoleArn == "" {
+		c.RoleArn = "arn:aws:iam::" + viper.GetString("control.account") + ":role/" + viper.GetString("control.role")
+	} else {
+		c.RoleArn = "arn:aws:iam::" + c.AccountNumber + ":role/" + c.RoleArn
+	}
+
+	if c.Region == "" {
+		c.Region = viper.GetString("control.region")
+	}
+
+	if c.SerialNumber == "" {
+		username := os.Getenv("USER")
+		c.SerialNumber = "arn:aws:iam::" + c.AccountNumber + ":mfa/" + username
+	}
+
+	return nil
+}
+
+// CheckMfa checks the presence of an MFA Token.
+func CheckMfa(token string) error {
+	if token == "" {
+		return errors.New("MFA Token cannot be blank")
+	}
+
+	if match, _ := regexp.MatchString(`\d{6}`, token); !match {
+		return errors.New("Invalid MFA Token. Token must be 6-digits")
+	}
+
+	return nil
 }
