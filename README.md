@@ -34,20 +34,23 @@ import "github.com/pmbenjamin/assumer"
 
 func main() {
 
-  // construct the control plane object
-  controlPlane := assumer.Plane{AccountNumber: "123456789012", RoleArn: "arn:aws:iam::123456789012:role/control-role", Region: "us-west-2"} 
+  // 1. get MFA Token from user
+  token = "123456"
 
-  // construct the target plane object
-  targetPlane := assumer.Plane{AccountNumber: "123123123123", RoleArn: "arn:aws:iam::123123123123:role/target-plane"}
+  // 2. Construct Control Plane
+  controlPlane := &assumer.ControlPlane{Plane: assumer.Plane{AccountNumber: "123456789012", RoleArn: "arn:aws:iam::123456789012:role/control-role", Region: "us-west-2"}, MfaToken: token}
 
-  // ... get MFA Token
+  // 3. Construct Target Plane
+  targetPlane := &assumer.targetPlane{Plane: assumer.Plane{AccountNumber: "123123123123", RoleArn: "arn:aws:iam::123123123123:role/target-plane"}}
 
-  controlCreds, err := assumer.AssumeControlPlane(controlPlane, mfaToken)
+  // 4. Assume Control Plane Role
+  controlCreds, err := controlPlane.Assume()
   if err != nil {
     fmt.Println(err)
   }
 
-  targetCreds, err := assumer.AssumeTargetPlane(targetPlane, controlCreds)
+  // 5. Assume Target Plane Role
+  targetCreds, err := targetPlane.Assume(controlCreds)
   if err != nil {
     fmt.Println(err)
   }
@@ -60,9 +63,9 @@ func main() {
 ```
 
 ## Configuration
-Assumer expects the config file to be called `config` and supports multiple configuration formats (e.g. [`TOML`](https://github.com/toml-lang/toml), `YAML`, & `JSON`).  
-Assumer expects the configuration file to be located in `$HOME/.assumer/config.xyz` or in the current working directory.  
-The config file is only used if the user assumes role via `assumer [target-account-name]`, rather than `assumer -a <target-account-number> -r <target-account-role> -A <control-account-number> -R <control-account-role>`
+Assumer expects the config file to be called `assumer` and supports multiple configuration formats (e.g. [`TOML`](https://github.com/toml-lang/toml), `YAML`, & `JSON`).  
+Assumer expects the configuration file to be located in `$HOME/.assumer/config.xyz` or in the **current working directory**.  
+The config file is used if the user assumes role via `assumer [target-account-name]` or if the user did not pass Control Plane/Target Plane parameters.
 
 ### Example
 ```
