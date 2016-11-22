@@ -5,9 +5,9 @@ import (
 	"log"
 	"os"
 
+	"github.com/devsecops/assumer-go"
 	"github.com/fatih/color"
 	flag "github.com/ogier/pflag"
-	"github.com/pmbenjamin/assumer-go"
 	"github.com/spf13/viper"
 )
 
