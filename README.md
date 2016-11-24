@@ -3,9 +3,9 @@ Assume roles between AWS Control Plane accounts and Target accounts safely and s
 
 ## Installation
 ### CLI
-`go get -u github.com/pmbenjamin/assumer-go/cmd/assumer`
+`go get -u github.com/devsecops/assumer-go/cmd/assumer`
 ### Library
-`go get -u github.com/pmbenjamin/assumer-go`
+`go get -u github.com/devsecops/assumer-go`
 
 ## Usage
 ### CLI
@@ -63,8 +63,8 @@ func main() {
 ```
 
 ## Configuration
-Assumer expects the config file to be called `assumer` and supports multiple configuration formats (e.g. [`TOML`](https://github.com/toml-lang/toml), `YAML`, & `JSON`).  
-Assumer expects the configuration file to be located in `$HOME/.assumer/config.xyz` or in the **current working directory**.  
+Assumer expects the config file to be called `assumer` and supports multiple configuration formats (e.g. [`TOML`](https://github.com/toml-lang/toml), `YAML`, & `JSON`).
+Assumer expects the configuration file to be located in `$HOME/.assumer/config.xyz` or in the **current working directory**.
 The config file is used if the user assumes role via `assumer [target-account-name]` or if the user did not pass Control Plane/Target Plane parameters.
 
 ### Example
