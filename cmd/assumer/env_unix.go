@@ -39,7 +39,7 @@ func openGui(t *sts.AssumeRoleOutput) {
 	case "darwin":
 		err = exec.Command("open", gURL).Start()
 	default:
-		err = fmt.Errorf("unsupported platform")
+		err = fmt.Errorf("Unsupported platform!")
 	}
 	checkErr(err)
 }

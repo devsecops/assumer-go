@@ -27,7 +27,7 @@ func execEnv(t *sts.AssumeRoleOutput) {
 }
 
 func openGui(t *sts.AssumeRoleOutput) {
-	gURL = GUIURL(t)
+	gURL := GUIURL(t)
 
 	err := exec.Command("open", gURL).Start()
 	checkErr(err)
