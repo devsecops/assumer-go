@@ -57,7 +57,9 @@ func GUIURL(t *sts.AssumeRoleOutput) string {
 		fmt.Printf("Token: %s\n\n", token.SigninToken)
 	}
 
-	return fmt.Sprintf("%s?Action=login&SigninToken=%s&Issuer=%s&Destination=%s", signinURL, token.SigninToken, issuer, consoleURL)
+	loginURL := fmt.Sprintf("%s?Action=login&SigninToken=%s&Issuer=%s&Destination=%s", signinURL, token.SigninToken, issuer, consoleURL)
+	fmt.Printf("Logging into the browser console via: \n%s\n", loginURL)
+	return loginURL
 }
 
 // mfa prompts user for MFA token
