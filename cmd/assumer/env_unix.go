@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"os/exec"
+	"runtime"
 
 	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/fatih/color"
@@ -28,11 +30,16 @@ func execEnv(t *sts.AssumeRoleOutput) {
 }
 
 func openGui(t *sts.AssumeRoleOutput) {
-	fmt.Println("Generating AWS Console URL")
+	gURL := GUIURL(t)
 
-	// issuerUrl := "assumer"
-	// consoleUrl := "https://console.aws.amazon.com/"
-	// signinUrl := "https://signin.aws.amazon.com/federation"
-
-	// sessionJson := ""
+	var err error
+	switch runtime.GOOS {
+	case "linux":
+		err = exec.Command("xdg-open", gURL).Start()
+	case "darwin":
+		err = exec.Command("open", gURL).Start()
+	default:
+		err = fmt.Errorf("Unsupported platform!")
+	}
+	checkErr(err)
 }

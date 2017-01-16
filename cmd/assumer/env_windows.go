@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
+	"os/exec"
 
 	"github.com/aws/aws-sdk-go/service/sts"
 )
@@ -27,11 +27,8 @@ func execEnv(t *sts.AssumeRoleOutput) {
 }
 
 func openGui(t *sts.AssumeRoleOutput) {
-	fmt.Println("Generating AWS Console URL")
+	gURL := GUIURL(t)
 
-	// issuerUrl := "assumer"
-	// consoleUrl := "https://console.aws.amazon.com/"
-	// signinUrl := "https://signin.aws.amazon.com/federation"
-
-	// sessionJson := ""
+	err := exec.Command("open", gURL).Start()
+	checkErr(err)
 }
