@@ -14,7 +14,7 @@ import (
 	"github.com/fatih/color"
 )
 
-// generates the GUI console URL
+// GUIURL generates the GUI console URL
 func GUIURL(t *sts.AssumeRoleOutput) string {
 	signinURL := "https://signin.aws.amazon.com/federation"
 	issuer := "assumer"
@@ -22,7 +22,7 @@ func GUIURL(t *sts.AssumeRoleOutput) string {
 
 	// anonymous struct for marshalling data into JSON
 	session := struct {
-		SessionId    string `json:"sessionId"`
+		SessionID    string `json:"sessionId"`
 		SessionKey   string `json:"sessionKey"`
 		SessionToken string `json:"sessionToken"`
 	}{

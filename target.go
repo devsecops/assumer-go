@@ -2,6 +2,8 @@ package assumer
 
 import (
 	"errors"
+	"fmt"
+	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -24,7 +26,7 @@ func (t *TargetPlane) Assume(c *sts.AssumeRoleOutput) (*sts.AssumeRoleOutput, er
 
 	targetParams := &sts.AssumeRoleInput{
 		RoleArn:         aws.String(t.Plane.RoleArn),
-		RoleSessionName: aws.String("AssumedRole"),
+		RoleSessionName: aws.String(fmt.Sprintf("%s_AssumedRole", os.Getenv("USER"))),
 	}
 
 	controlCreds := credentials.NewStaticCredentials(*c.Credentials.AccessKeyId, *c.Credentials.SecretAccessKey, *c.Credentials.SessionToken)
